@@ -12,19 +12,21 @@
 name: "CodeQL"
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    # The branches below must be a subset of the branches above
-    branches: [ "master" ]
-  schedule:
-    - cron: '33 4 * * 6'
+   workflow_run:
+     workflows: ["Java CI with Gradle"]
+     types: [completed] #requested
 
 permissions:
   contents: read
 
 jobs:
+  on-failure:
+     runs-on: ubuntu-latest
+     if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+     steps:
+       - run: echo "Java CI with Gradle build failed workflow will be aborted"
   analyze:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Analyze
     runs-on: ubuntu-latest
     permissions:
